@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isNaN(userAnswer)) {
                 console.log('音声で認識された答え:', userAnswer);
                 // 答えを処理する
+                checkAnswer(currentProblem, userAnswer);
             } else {
                 alert("音声認識がうまくいきませんでした。");
             }
