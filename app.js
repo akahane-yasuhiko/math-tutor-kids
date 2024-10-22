@@ -44,8 +44,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 音声認識で答えを入力
-    voiceButton.addEventListener('click', () => {
+    // マイクのアクセス権を確認する関数
+    function checkMicrophonePermission() {
+        navigator.permissions.query({ name: 'microphone' }).then((permissionStatus) => {
+            if (permissionStatus.state === 'granted') {
+                console.log('マイクのアクセスは許可されています');
+                startVoiceRecognition(); // マイクが許可されていれば音声認識を開始
+            } else if (permissionStatus.state === 'prompt') {
+                console.log('マイクのアクセスは確認が必要です');
+                // アクセス権が不確定な場合、音声認識を試みる
+                startVoiceRecognition();
+            } else if (permissionStatus.state === 'denied') {
+                console.log('マイクのアクセスは拒否されています');
+                alert('マイクのアクセスが拒否されています。ブラウザの設定を確認してください。');
+            }
+        }).catch((error) => {
+            console.error('マイクの権限を確認中にエラーが発生しました:', error);
+        });
+    }
+
+    // 音声認識を開始する関数
+    function startVoiceRecognition() {
         if (!('webkitSpeechRecognition' in window)) {
             alert("このブラウザは音声認識に対応していません。");
             return;
@@ -63,15 +82,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const userAnswer = parseInt(transcript);
 
             if (!isNaN(userAnswer)) {
-                checkAnswer(currentProblem, userAnswer);
+                console.log('音声で認識された答え:', userAnswer);
+                // 答えを処理する
             } else {
-                resultElement.textContent = "音声認識がうまくいきませんでした。";
+                alert("音声認識がうまくいきませんでした。");
             }
         };
 
         recognition.onerror = (event) => {
-            resultElement.textContent = `エラーが発生しました: ${event.error}`;
+            console.error('音声認識中にエラーが発生しました:', event.error);
+            alert(`エラーが発生しました: ${event.error}`);
         };
+    }
+
+    // 音声ボタンが押された時にマイク権限を確認
+    voiceButton.addEventListener('click', () => {
+        checkMicrophonePermission();
     });
 
     submitButton.addEventListener('click', () => {
