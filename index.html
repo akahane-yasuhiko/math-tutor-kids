@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Tutor for Kids</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .problem {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .input-box {
+            font-size: 1.5em;
+            width: 100px;
+            padding: 10px;
+            text-align: center;
+        }
+        .submit-btn {
+            font-size: 1.5em;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .result {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Math Tutor for Kids</h1>
+    <div class="problem" id="problem">5 + 3 = ?</div>
+    <input type="number" id="answer" class="input-box" placeholder="答えを入力" />
+    <button id="submit" class="submit-btn">答える</button>
+    <div id="result" class="result"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
