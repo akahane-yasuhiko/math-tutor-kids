@@ -88,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userAnswer === problem.answer) {
             resultElement.textContent = "正解！";
             speakText("正解！"); // 正解を読み上げ
-            // 読み上げが終わってから次の問題を表示
             const utterance = new SpeechSynthesisUtterance("正解！");
             utterance.lang = 'ja-JP';
             utterance.onend = () => {
