@@ -74,9 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 音声で問題を読み上げる関数
-    function speakText(text) {
+    function speakText(text, rate = 1, pitch = 1) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ja-JP'; // 日本語設定
+        utterance.rate = rate; // 読み上げ速度
+        utterance.pitch = pitch; // ピッチ（高さ）
         speechSynthesis.speak(utterance);
     }
 
@@ -92,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         problemElement.textContent = `${problem.num1} + ${problem.num2} = ?`;
         answerInput.value = '';
         resultElement.textContent = '';
-        speakText(`${problem.num1} たす ${problem.num2} は？`); // 問題を読み上げ
+        speakText(`${problem.num1} たす ${problem.num2} は？`, 1.2, 1.2); // 問題をテンション高く読み上げ
     }
 
     // ランダムに褒め言葉を選ぶ関数
@@ -106,9 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (userAnswer === problem.answer) {
             const compliment = getRandomCompliment(); // 褒め言葉をランダムに選ぶ
             resultElement.textContent = compliment;
-            // 褒め言葉を読み上げてから次の問題を表示
+            // 褒め言葉をテンション高く読み上げてから次の問題を表示
             const utterance = new SpeechSynthesisUtterance(compliment);
             utterance.lang = 'ja-JP';
+            utterance.rate = 1.4; // 褒めるときの速度を速くしてテンションを上げる
+            utterance.pitch = 1.5; // 褒めるときのピッチを高くする
             utterance.onend = () => {
                 currentProblem = generateProblem();
                 displayProblem(currentProblem);
@@ -116,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             speechSynthesis.speak(utterance);
         } else {
             resultElement.textContent = "間違い。もう一度やってみてください。";
-            speakText("間違い。もう一度やってみてください。"); // 間違いも読み上げ
+            speakText("間違い。もう一度やってみてください。", 1, 1); // 誤答時は通常の速度とピッチで
         }
     }
 
