@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('submit');
     const resultElement = document.getElementById('result');
     const voiceButton = document.createElement('button');
-    voiceButton.textContent = '🎤 音声で答える３';
+    voiceButton.textContent = '🎤 音声で答える';
     voiceButton.className = 'submit-btn';
     document.body.appendChild(voiceButton);
 
@@ -61,6 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // 音声で問題を読み上げる関数
+    function speakText(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP'; // 日本語設定
+        speechSynthesis.speak(utterance);
+    }
+
     // 問題を生成する関数
     function generateProblem() {
         const num1 = Math.floor(Math.random() * 10) + 1;
@@ -68,33 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return { num1, num2, answer: num1 + num2 };
     }
 
-    // 問題を読み上げる関数
-    function speak(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP'; // 日本語設定
-        speechSynthesis.speak(utterance);
-    }
-
-    // 問題を画面に表示して読み上げる関数
+    // 問題を画面に表示し、読み上げる関数
     function displayProblem(problem) {
-        const problemText = `${problem.num1} + ${problem.num2} = ?`;
-        problemElement.textContent = problemText;
+        problemElement.textContent = `${problem.num1} + ${problem.num2} = ?`;
         answerInput.value = '';
         resultElement.textContent = '';
-        speak(problemText); // 問題を読み上げ
+        speakText(`${problem.num1} たす ${problem.num2} は？`); // 問題を読み上げ
     }
 
-    // ユーザーの入力を確認する関数
+    // ユーザーの入力を確認し、正解なら読み上げてから次の問題を表示する関数
     function checkAnswer(problem, userAnswer) {
         if (userAnswer === problem.answer) {
             resultElement.textContent = "正解！";
-            speak("正解！"); // 正解を読み上げ
-            setTimeout(() => {
+            speakText("正解！"); // 正解を読み上げ
+            // 読み上げが終わってから次の問題を表示
+            const utterance = new SpeechSynthesisUtterance("正解！");
+            utterance.lang = 'ja-JP';
+            utterance.onend = () => {
                 currentProblem = generateProblem();
                 displayProblem(currentProblem);
-            }, 2000); // 2秒後に次の問題を表示
+            };
+            speechSynthesis.speak(utterance);
         } else {
             resultElement.textContent = "間違い。もう一度やってみてください。";
+            speakText("間違い。もう一度やってみてください。"); // 間違いも読み上げ
         }
     }
 
@@ -108,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userAnswer = parseInt(answerInput.value);
         if (isNaN(userAnswer)) {
             resultElement.textContent = "数字を入力してください。";
+            speakText("数字を入力してください。");
         } else {
             checkAnswer(currentProblem, userAnswer);
         }
