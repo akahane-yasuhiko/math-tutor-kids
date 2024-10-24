@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('submit');
     const resultElement = document.getElementById('result');
     const voiceButton = document.createElement('button');
-    voiceButton.textContent = '🎤 音声で答える(2';
+    voiceButton.textContent = '🎤 音声で答える３';
     voiceButton.className = 'submit-btn';
     document.body.appendChild(voiceButton);
 
@@ -61,13 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 問題を音声で読み上げる
-    function speakProblem(problem) {
-        const utterance = new SpeechSynthesisUtterance(`${problem.num1} たす ${problem.num2} は？`);
-        utterance.lang = 'ja-JP'; // 日本語設定
-        speechSynthesis.speak(utterance);
-    }
- 
     // 問題を生成する関数
     function generateProblem() {
         const num1 = Math.floor(Math.random() * 10) + 1;
@@ -75,26 +68,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return { num1, num2, answer: num1 + num2 };
     }
 
-    // 問題を画面に表示する関数
+    // 問題を読み上げる関数
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP'; // 日本語設定
+        speechSynthesis.speak(utterance);
+    }
+
+    // 問題を画面に表示して読み上げる関数
     function displayProblem(problem) {
-        problemElement.textContent = `${problem.num1} + ${problem.num2} = ?`;
+        const problemText = `${problem.num1} + ${problem.num2} = ?`;
+        problemElement.textContent = problemText;
         answerInput.value = '';
         resultElement.textContent = '';
-        speakProblem(problem); // 問題を読み上げ
+        speak(problemText); // 問題を読み上げ
     }
 
     // ユーザーの入力を確認する関数
     function checkAnswer(problem, userAnswer) {
         if (userAnswer === problem.answer) {
             resultElement.textContent = "正解！";
-            currentProblem = generateProblem();
-            displayProblem(currentProblem);
+            speak("正解！"); // 正解を読み上げ
+            setTimeout(() => {
+                currentProblem = generateProblem();
+                displayProblem(currentProblem);
+            }, 2000); // 2秒後に次の問題を表示
         } else {
             resultElement.textContent = "間違い。もう一度やってみてください。";
         }
     }
 
-    // 音声ボタンが押された時にマイク権限を確認
+    // 音声ボタンが押された時に音声認識を開始
     voiceButton.addEventListener('click', () => {
         checkMicrophonePermission();
     });
