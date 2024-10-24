@@ -8,6 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
     voiceButton.className = 'submit-btn';
     document.body.appendChild(voiceButton);
 
+    // 褒め言葉のバリエーション
+    const compliments = [
+        "正解！素晴らしい！",
+        "よくできました！",
+        "その調子！",
+        "素晴らしい！",
+        "すごい！その通り！",
+        "いい感じだね！",
+        "よく頑張ったね！",
+        "完璧です！"
+    ];
+
     let currentProblem = generateProblem();
     displayProblem(currentProblem);
 
@@ -83,12 +95,19 @@ document.addEventListener('DOMContentLoaded', () => {
         speakText(`${problem.num1} たす ${problem.num2} は？`); // 問題を読み上げ
     }
 
-    // ユーザーの入力を確認し、正解なら読み上げてから次の問題を表示する関数
+    // ランダムに褒め言葉を選ぶ関数
+    function getRandomCompliment() {
+        const randomIndex = Math.floor(Math.random() * compliments.length);
+        return compliments[randomIndex];
+    }
+
+    // ユーザーの入力を確認し、正解なら褒めてから次の問題を表示する関数
     function checkAnswer(problem, userAnswer) {
         if (userAnswer === problem.answer) {
-            resultElement.textContent = "正解！";
-            speakText("正解！"); // 正解を読み上げ
-            const utterance = new SpeechSynthesisUtterance("正解！");
+            const compliment = getRandomCompliment(); // 褒め言葉をランダムに選ぶ
+            resultElement.textContent = compliment;
+            // 褒め言葉を読み上げてから次の問題を表示
+            const utterance = new SpeechSynthesisUtterance(compliment);
             utterance.lang = 'ja-JP';
             utterance.onend = () => {
                 currentProblem = generateProblem();
