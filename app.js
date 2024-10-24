@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('submit');
     const resultElement = document.getElementById('result');
     const voiceButton = document.createElement('button');
-    voiceButton.textContent = '🎤 音声で答える(2';
-    voiceButton.className = 'submit-btn';
-    document.body.appendChild(voiceButton);
+    // voiceButton.textContent = '🎤 音声で答える(2';
+    // voiceButton.className = 'submit-btn';
+    // document.body.appendChild(voiceButton);
 
     let currentProblem = generateProblem();
     displayProblem(currentProblem);
@@ -67,7 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
         utterance.lang = 'ja-JP'; // 日本語設定
         speechSynthesis.speak(utterance);
     }
-    
+
+    // 音声認識終了後、再度開始
+    recognition.onend = () => {
+        recognition.start(); // 音声認識が終わったら再度開始
+    };
+ 
     // 問題を生成する関数
     function generateProblem() {
         const num1 = Math.floor(Math.random() * 10) + 1;
@@ -94,10 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 音声ボタンが押された時にマイク権限を確認
-    voiceButton.addEventListener('click', () => {
-        checkMicrophonePermission();
-    });
+    // 画面表示時に自動的に音声認識を開始
+    checkMicrophonePermission();
 
     // 答えボタンが押されたときに答えを確認
     submitButton.addEventListener('click', () => {
