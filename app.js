@@ -108,16 +108,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addCorrectMark() {
+        const mark = document.createElement('span');
+        mark.textContent = '✔️';
+        mark.className = 'mark';
+        markContainer.appendChild(mark);
+
         if (correctStreak % 3 === 0 && correctStreak !== 0) {
             const separator = document.createElement('span');
             separator.textContent = ' | ';
             separator.className = 'separator';
             markContainer.appendChild(separator);
         }
-        const mark = document.createElement('span');
-        mark.textContent = '✔️';
-        mark.className = 'mark';
-        markContainer.appendChild(mark);
     }
 
     function clearMarks() {
