@@ -8,7 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     voiceButton.className = 'submit-btn';
     document.body.appendChild(voiceButton);
 
-    // 褒め言葉のバリエーション
+    const markContainer = document.createElement('div');
+    markContainer.className = 'mark-container';
+    document.body.appendChild(markContainer);
+
+    const fanfareSound = document.getElementById('fanfare-sound');
+    let correctStreak = 0; // 連続正解のカウント
     const compliments = [
         "正解！素晴らしい！",
         "よくできました！",
@@ -60,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const userAnswer = parseInt(transcript);
 
             if (!isNaN(userAnswer)) {
-                console.log('音声で認識された答え:', userAnswer);
                 answerInput.value = userAnswer; // 音声認識結果をテキストボックスに入力
             } else {
                 resultElement.textContent = "音声認識がうまくいきませんでした。";
@@ -103,7 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return compliments[randomIndex];
     }
 
-    // ユーザーの入力を確認し、正解なら褒めてから次の問題を表示する関数
+    function addCorrectMark() {
+        const mark = document.createElement('span');
+        mark.textContent = '✔️';
+        mark.className = 'mark';
+        markContainer.appendChild(mark);
+    }
+
+    function clearMarks() {
+        markContainer.innerHTML = '';
+    }
+
     function checkAnswer(problem, userAnswer) {
         if (userAnswer === problem.answer) {
             const compliment = getRandomCompliment(); // 褒め言葉をランダムに選ぶ
@@ -114,13 +128,25 @@ document.addEventListener('DOMContentLoaded', () => {
             utterance.rate = 1.4; // 褒めるときの速度を速くしてテンションを上げる
             utterance.pitch = 1.5; // 褒めるときのピッチを高くする
             utterance.onend = () => {
-                currentProblem = generateProblem();
-                displayProblem(currentProblem);
+                correctStreak++;
+                addCorrectMark();
+
+                if (correctStreak === 10) {
+                    fanfareSound.play();
+                    resultElement.textContent = "10問連続正解！すごい！";
+                    correctStreak = 0;
+                    clearMarks();
+                } else {
+                    currentProblem = generateProblem();
+                    displayProblem(currentProblem);
+                }
             };
             speechSynthesis.speak(utterance);
         } else {
             resultElement.textContent = "間違い。もう一度やってみてください。";
             speakText("間違い。もう一度やってみてください。", 1, 1); // 誤答時は通常の速度とピッチで
+            correctStreak = 0;
+            clearMarks();
         }
     }
 
