@@ -108,6 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addCorrectMark() {
+        if (correctStreak % 3 === 0 && correctStreak !== 0) {
+            const separator = document.createElement('span');
+            separator.textContent = ' | ';
+            separator.className = 'separator';
+            markContainer.appendChild(separator);
+        }
         const mark = document.createElement('span');
         mark.textContent = '✔️';
         mark.className = 'mark';
@@ -163,6 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
             speakText("数字を入力してください。");
         } else {
             checkAnswer(currentProblem, userAnswer);
+        }
+    });
+
+    // Enterキーで「答える」ボタンを押す処理
+    answerInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            submitButton.click();
         }
     });
 });
