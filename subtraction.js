@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultElement = document.getElementById('result');
     const markContainer = document.getElementById('mark-container');
     const fanfareSound = document.getElementById('fanfare-sound');
+    const voiceButton = document.getElementById('voice-answer');
 
     let correctStreak = 0;
 
@@ -97,6 +98,39 @@ document.addEventListener('DOMContentLoaded', () => {
             clearMarks();
         }
     }
+
+    function startVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("このブラウザは音声認識に対応していません。");
+            return;
+        }
+
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = 'ja-JP';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.start();
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const userAnswer = parseInt(transcript);
+
+            if (!isNaN(userAnswer)) {
+                answerInput.value = userAnswer;
+            } else {
+                resultElement.textContent = "音声認識がうまくいきませんでした。";
+            }
+        };
+
+        recognition.onerror = (event) => {
+            resultElement.textContent = `エラーが発生しました: ${event.error}`;
+        };
+    }
+
+    voiceButton.addEventListener('click', () => {
+        startVoiceRecognition();
+    });
 
     submitButton.addEventListener('click', () => {
         const userAnswer = parseInt(answerInput.value);
