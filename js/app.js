@@ -1,14 +1,24 @@
+import { checkMicrophonePermission, startVoiceRecognition, speakText } from './utils/speechUtils.js';
+import { generateAdditionProblem, checkAnswer } from './utils/problemUtils.js';
+import { handleCorrectAnswer, handleIncorrectAnswer } from './utils/feedbackUtils.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const problemElement = document.getElementById('problem');
     const answerInput = document.getElementById('answer');
     const submitButton = document.getElementById('submit');
     const resultElement = document.getElementById('result');
-    const markContainer = document.getElementById('mark-container');
+    const voiceButton = document.createElement('button');
+    voiceButton.textContent = '🎤 音声で答える';
+    voiceButton.className = 'submit-btn';
+    document.body.appendChild(voiceButton);
+    
+
+    const markContainer = document.createElement('div');
+    markContainer.className = 'mark-container';
+    document.body.appendChild(markContainer);
+
     const fanfareSound = document.getElementById('fanfare-sound');
-    const voiceButton = document.getElementById('voice-answer');
-
-    let correctStreak = 0;
-
+    let correctStreak = 0; // 連続正解のカウント
     const compliments = [
         "正解！素晴らしい！",
         "よくできました！",
@@ -20,31 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
         "完璧です！"
     ];
 
-    let currentProblem = generateProblem();
+    let currentProblem = generateAdditionProblem();
+
     displayProblem(currentProblem);
 
-    function speakText(text, rate = 1, pitch = 1) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP';
-        utterance.rate = rate;
-        utterance.pitch = pitch;
-        speechSynthesis.speak(utterance);
-    }
-
-    function generateProblem() {
-        const num1 = Math.floor(Math.random() * 10) + 1;
-        const num2 = Math.floor(Math.random() * 10) + 1;
-        const [larger, smaller] = num1 > num2 ? [num1, num2] : [num2, num1]; // 結果が負にならないように調整
-        return { num1: larger, num2: smaller, answer: larger - smaller };
-    }
-
+    // 問題を画面に表示し、読み上げる関数
     function displayProblem(problem) {
-        problemElement.textContent = `${problem.num1} - ${problem.num2} = ?`;
+        problemElement.textContent = `${problem.num1} + ${problem.num2} = ?`;
         answerInput.value = '';
         resultElement.textContent = '';
-        speakText(`${problem.num1} ひく ${problem.num2} は？`, 1.2, 1.2);
+        speakText(`${problem.num1} たす ${problem.num2} は？`, 1.1, 1.2); // 問題をテンション高く読み上げ
     }
 
+    // ランダムに褒め言葉を選ぶ関数
     function getRandomCompliment() {
         const randomIndex = Math.floor(Math.random() * compliments.length);
         return compliments[randomIndex];
@@ -70,12 +68,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkAnswer(problem, userAnswer) {
         if (userAnswer === problem.answer) {
-            const compliment = getRandomCompliment();
+            const compliment = getRandomCompliment(); // 褒め言葉をランダムに選ぶ
             resultElement.textContent = compliment;
+            // 褒め言葉をテンション高く読み上げてから次の問題を表示
             const utterance = new SpeechSynthesisUtterance(compliment);
             utterance.lang = 'ja-JP';
-            utterance.rate = 1.4;
-            utterance.pitch = 1.5;
+            utterance.rate = 1.2; // 褒めるときの速度を速くしてテンションを上げる
+            utterance.pitch = 1.3; // 褒めるときのピッチを高くする
             utterance.onend = () => {
                 correctStreak++;
                 addCorrectMark();
@@ -86,52 +85,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     correctStreak = 0;
                     clearMarks();
                 } else {
-                    currentProblem = generateProblem();
+                    currentProblem = generateAdditionProblem();
                     displayProblem(currentProblem);
                 }
             };
             speechSynthesis.speak(utterance);
         } else {
             resultElement.textContent = "間違い。もう一度やってみてください。";
-            speakText("間違い。もう一度やってみてください。");
+            speakText("間違い。もう一度やってみてください。", 1, 1); // 誤答時は通常の速度とピッチで
             correctStreak = 0;
             clearMarks();
         }
     }
 
-    function startVoiceRecognition() {
-        if (!('webkitSpeechRecognition' in window)) {
-            alert("このブラウザは音声認識に対応していません。");
-            return;
-        }
-
-        const recognition = new webkitSpeechRecognition();
-        recognition.lang = 'ja-JP';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.start();
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
+    // 音声ボタンが押された時に音声認識を開始
+    voiceButton.addEventListener('click', async () => {
+        try {
+            await checkMicrophonePermission();
+            const transcript = await startVoiceRecognition();
             const userAnswer = parseInt(transcript);
-
             if (!isNaN(userAnswer)) {
                 answerInput.value = userAnswer;
             } else {
                 resultElement.textContent = "音声認識がうまくいきませんでした。";
             }
-        };
-
-        recognition.onerror = (event) => {
-            resultElement.textContent = `エラーが発生しました: ${event.error}`;
-        };
-    }
-
-    voiceButton.addEventListener('click', () => {
-        startVoiceRecognition();
+        } catch (error) {
+            resultElement.textContent = `エラーが発生しました: ${error}`;
+        }
     });
 
+    // 答えボタンが押されたときに答えを確認
     submitButton.addEventListener('click', () => {
         const userAnswer = parseInt(answerInput.value);
         if (isNaN(userAnswer)) {
@@ -142,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Enterキーで「答える」ボタンを押す処理
     answerInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             submitButton.click();
