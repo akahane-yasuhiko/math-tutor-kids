@@ -35,3 +35,17 @@ body {
 .separator {
     margin: 0 5px;
 }
+
+.problem-container {
+    display: inline-block;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.input-box {
+    display: inline-block;
+    font-size: 1.5em;
+    width: 100px;
+    padding: 10px;
+    text-align: center;
+}
