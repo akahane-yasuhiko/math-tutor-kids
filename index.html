@@ -4,35 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>10問たしざん</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        .problem {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-        .input-box {
-            font-size: 1.5em;
-            width: 100px;
-            padding: 10px;
-            text-align: center;
-        }
-        .submit-btn {
-            font-size: 1.5em;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        .result {
-            font-size: 1.5em;
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <h1>10問たしざん</h1>
+    <h1>10問たしざんBK</h1>
     <!-- ファンファーレ音の追加 -->
     <audio id="fanfare-sound" src="success-fanfare-trumpets-6185.mp3" preload="auto"></audio>
     <div class="problem" id="problem">5 + 3 = ?</div>
@@ -41,7 +16,8 @@
     <div id="result" class="result"></div>
 
     <div id="link-container">
-        <a href="subtraction.html">引き算ページへ</a>
+        <a href="addition.html">たしざんページへ</a>
+        <a href="subtraction.html">ひきざんページへ</a>
     </div>
     
     <script type="module" src="js/app.js"></script>
