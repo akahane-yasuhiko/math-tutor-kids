@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>たしざん</title>
+    <title>10問かけざん</title>
     <link rel="stylesheet" href="./css/style.css">
-    <script type="module" src="js/addition.js"></script>
+    <script type="module" src="./js/multiplication.js"></script>
 </head>
 <body>
-    <h1>10問たしざん</h1>
+    <h1>10問かけざん</h1>
     <div class="problem-container">
-        <span id="problem" class="problem"></span>
-        <input type="number" id="answer" class="input-box" placeholder="？" />
+        <span id="problem" class="problem">2 × 3 = ?</span>
+        <input type="number" id="answer" class="input-box" placeholder="答えを入力" />
     </div>
     <div></div>
     <button id="voice-answer" class="submit-btn"> 🎤 </button>
@@ -24,7 +24,7 @@
         <a href="multiplication.html">かけざん</a>
     </div>
 
-    <div class="mark-container" id="mark-container"></div>
+    <div id="mark-container" class="mark-container"></div>
     <audio id="fanfare-sound" src="success-fanfare-trumpets-6185.mp3" preload="auto"></audio>
 </body>
 </html>

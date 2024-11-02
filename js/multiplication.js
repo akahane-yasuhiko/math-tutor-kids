@@ -1,5 +1,5 @@
 import { checkMicrophonePermission, startVoiceRecognition, speakText } from './utils/speechUtils.js';
-import { generateSubtractionProblem, checkAnswer } from './utils/problemUtils.js';
+import { generateMultiplicationProblem, checkAnswer } from './utils/problemUtils.js';
 import { handleCorrectAnswer, handleIncorrectAnswer } from './utils/feedbackUtils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,17 +11,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const fanfareSound = document.getElementById('fanfare-sound');
     const voiceButton = document.getElementById('voice-answer');
 
-    let currentProblem = generateSubtractionProblem();
+    let currentProblem = generateMultiplicationProblem();
     displayProblem(currentProblem);
 
     function displayProblem(problem) {
-        problemElement.textContent = `${problem.num1} - ${problem.num2} = `;
+        problemElement.textContent = `${problem.num1} × ${problem.num2} = ?`;
         answerInput.value = '';
         resultElement.textContent = '';
-        speakText(`${problem.num1} ひく ${problem.num2} は？`, 1.2, 1.2);
+        speakText(`${problem.num1} かける ${problem.num2} は？`, 1.2, 1.2);
     }
 
-    // 音声ボタンが押された時に音声認識を開始
+        // 音声ボタンが押された時に音声認識を開始
     voiceButton.addEventListener('click', async () => {
         try {
             await checkMicrophonePermission();
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             if (checkAnswer(currentProblem, userAnswer)) {
                 handleCorrectAnswer(resultElement, markContainer, fanfareSound, () => {
-                    currentProblem = generateSubtractionProblem();
+                    currentProblem = generateMultiplicationProblem();
                     displayProblem(currentProblem);
                 });
             } else {
