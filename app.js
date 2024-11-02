@@ -1,3 +1,5 @@
+import { checkMicrophonePermission, startVoiceRecognition, speakText } from './utils.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const problemElement = document.getElementById('problem');
     const answerInput = document.getElementById('answer');
@@ -28,63 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentProblem = generateProblem();
     displayProblem(currentProblem);
 
-    // マイクのアクセス権を確認する関数
-    function checkMicrophonePermission() {
-        navigator.permissions.query({ name: 'microphone' }).then((permissionStatus) => {
-            if (permissionStatus.state === 'granted') {
-                console.log('マイクのアクセスは許可されています');
-                startVoiceRecognition(); // マイクが許可されていれば音声認識を開始
-            } else if (permissionStatus.state === 'prompt') {
-                console.log('マイクのアクセスは確認が必要です');
-                startVoiceRecognition(); // 許可ダイアログが表示される
-            } else if (permissionStatus.state === 'denied') {
-                console.log('マイクのアクセスは拒否されています');
-                alert('マイクのアクセスが拒否されています。ブラウザの設定を確認してください。');
-            }
-        }).catch((error) => {
-            console.error('マイクの権限を確認中にエラーが発生しました:', error);
-        });
-    }
-
-    // 音声認識を開始する関数
-    function startVoiceRecognition() {
-        if (!('webkitSpeechRecognition' in window)) {
-            alert("このブラウザは音声認識に対応していません。");
-            return;
-        }
-
-        const recognition = new webkitSpeechRecognition();
-        recognition.lang = 'ja-JP'; // 日本語設定
-        recognition.interimResults = false; // 最終結果のみ取得
-        recognition.maxAlternatives = 1;
-
-        recognition.start();
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            const userAnswer = parseInt(transcript);
-
-            if (!isNaN(userAnswer)) {
-                answerInput.value = userAnswer; // 音声認識結果をテキストボックスに入力
-            } else {
-                resultElement.textContent = "音声認識がうまくいきませんでした。";
-            }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('音声認識中にエラーが発生しました:', event.error);
-            resultElement.textContent = `エラーが発生しました: ${event.error}`;
-        };
-    }
-
-    // 音声で問題を読み上げる関数
-    function speakText(text, rate = 1, pitch = 1) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ja-JP'; // 日本語設定
-        utterance.rate = rate; // 読み上げ速度
-        utterance.pitch = pitch; // ピッチ（高さ）
-        speechSynthesis.speak(utterance);
-    }
 
     // 問題を生成する関数
     function generateProblem() {
@@ -98,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         problemElement.textContent = `${problem.num1} + ${problem.num2} = ?`;
         answerInput.value = '';
         resultElement.textContent = '';
-        speakText(`${problem.num1} たす ${problem.num2} は？`, 1.2, 1.2); // 問題をテンション高く読み上げ
+        speakText(`${problem.num1} たす ${problem.num2} は？`, 1.1, 1.2); // 問題をテンション高く読み上げ
     }
 
     // ランダムに褒め言葉を選ぶ関数
@@ -132,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // 褒め言葉をテンション高く読み上げてから次の問題を表示
             const utterance = new SpeechSynthesisUtterance(compliment);
             utterance.lang = 'ja-JP';
-            utterance.rate = 1.4; // 褒めるときの速度を速くしてテンションを上げる
-            utterance.pitch = 1.5; // 褒めるときのピッチを高くする
+            utterance.rate = 1.2; // 褒めるときの速度を速くしてテンションを上げる
+            utterance.pitch = 1.3; // 褒めるときのピッチを高くする
             utterance.onend = () => {
                 correctStreak++;
                 addCorrectMark();
@@ -158,8 +103,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 音声ボタンが押された時に音声認識を開始
-    voiceButton.addEventListener('click', () => {
-        checkMicrophonePermission();
+    voiceButton.addEventListener('click', async () => {
+        try {
+            await checkMicrophonePermission();
+            const transcript = await startVoiceRecognition();
+            const userAnswer = parseInt(transcript);
+            if (!isNaN(userAnswer)) {
+                answerInput.value = userAnswer;
+            } else {
+                resultElement.textContent = "音声認識がうまくいきませんでした。";
+            }
+        } catch (error) {
+            resultElement.textContent = `エラーが発生しました: ${error}`;
+        }
     });
 
     // 答えボタンが押されたときに答えを確認
