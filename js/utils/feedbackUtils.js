@@ -73,9 +73,12 @@ export function handleCorrectAnswer(resultElement, markContainer, correctSound, 
 }
 
 // 不正解時のフィードバックを行う関数
-export function handleIncorrectAnswer(resultElement, markContainer) {
+export function handleIncorrectAnswer(resultElement, markContainer, incorrectSound) {
     resultElement.textContent = "間違い。もう一度やってみてください。";
-    speakText("間違い。もう一度やってみてください。", 1, 1);
-    correctStreak = 0;
-    clearMarks(markContainer);
+    incorrectSound.play();
+    incorrectSound.onended = () => {
+        speakText("間違い。もう一度やってみてください。", 1, 1);
+        correctStreak = 0;
+        clearMarks(markContainer);
+    };
 }

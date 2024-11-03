@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const markContainer = document.getElementById('mark-container');
     const voiceButton = document.getElementById('voice-answer');
     const correctSound = new Audio('./audio/correct-sound.mp3');
+    const incorrectSound = new Audio('./audio/incorrect-sound.mp3');
     const fanfareSound = new Audio('./audio/fanfare.mp3');
     let currentProblem = generateAdditionProblem();
     displayProblem(currentProblem);
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayProblem(currentProblem);
                 });
             } else {
-                handleIncorrectAnswer(resultElement, markContainer);
+                handleIncorrectAnswer(resultElement, markContainer, incorrectSound);
             }
         }
     });
