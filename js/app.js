@@ -7,84 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const answerInput = document.getElementById('answer');
     const submitButton = document.getElementById('submit');
     const resultElement = document.getElementById('result');
-    const voiceButton = document.createElement('button');
-    voiceButton.textContent = '🎤 音声で答える';
-    voiceButton.className = 'submit-btn';
-    document.body.appendChild(voiceButton);
-    
-
-    const markContainer = document.createElement('div');
-    markContainer.className = 'mark-container';
-    document.body.appendChild(markContainer);
-
-    const fanfareSound = document.getElementById('fanfare-sound');
-
+    const markContainer = document.getElementById('mark-container');
+    const voiceButton = document.getElementById('voice-answer');
+    const correctSound = new Audio('./audio/correct-sound.mp3');
+    const fanfareSound = new Audio('./audio/fanfare.mp3');
     let currentProblem = generateAdditionProblem();
-
     displayProblem(currentProblem);
 
-    // 問題を画面に表示し、読み上げる関数
     function displayProblem(problem) {
-        problemElement.textContent = `${problem.num1} + ${problem.num2} = ?`;
+        problemElement.textContent = `${problem.num1} + ${problem.num2} =`;
         answerInput.value = '';
         resultElement.textContent = '';
-        speakText(`${problem.num1} たす ${problem.num2} は？`, 1.1, 1.2); // 問題をテンション高く読み上げ
-    }
-
-    // ランダムに褒め言葉を選ぶ関数
-    function getRandomCompliment() {
-        const randomIndex = Math.floor(Math.random() * compliments.length);
-        return compliments[randomIndex];
-    }
-
-    function addCorrectMark() {
-        const mark = document.createElement('span');
-        mark.textContent = '✔️';
-        mark.className = 'mark';
-        markContainer.appendChild(mark);
-
-        if (correctStreak % 3 === 0 && correctStreak !== 0) {
-            const separator = document.createElement('span');
-            separator.textContent = ' | ';
-            separator.className = 'separator';
-            markContainer.appendChild(separator);
-        }
-    }
-
-    function clearMarks() {
-        markContainer.innerHTML = '';
-    }
-
-    function checkAnswer(problem, userAnswer) {
-        if (userAnswer === problem.answer) {
-            const compliment = getRandomCompliment(); // 褒め言葉をランダムに選ぶ
-            resultElement.textContent = compliment;
-            // 褒め言葉をテンション高く読み上げてから次の問題を表示
-            const utterance = new SpeechSynthesisUtterance(compliment);
-            utterance.lang = 'ja-JP';
-            utterance.rate = 1.2; // 褒めるときの速度を速くしてテンションを上げる
-            utterance.pitch = 1.3; // 褒めるときのピッチを高くする
-            utterance.onend = () => {
-                correctStreak++;
-                addCorrectMark();
-
-                if (correctStreak === 10) {
-                    fanfareSound.play();
-                    resultElement.textContent = "10問連続正解！すごい！";
-                    correctStreak = 0;
-                    clearMarks();
-                } else {
-                    currentProblem = generateAdditionProblem();
-                    displayProblem(currentProblem);
-                }
-            };
-            speechSynthesis.speak(utterance);
-        } else {
-            resultElement.textContent = "間違い。もう一度やってみてください。";
-            speakText("間違い。もう一度やってみてください。", 1, 1); // 誤答時は通常の速度とピッチで
-            correctStreak = 0;
-            clearMarks();
-        }
+        speakText(`${problem.num1} たす ${problem.num2} は？`, 1.2, 1.2);
     }
 
     // 音声ボタンが押された時に音声認識を開始
@@ -103,18 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 答えボタンが押されたときに答えを確認
     submitButton.addEventListener('click', () => {
         const userAnswer = parseInt(answerInput.value);
         if (isNaN(userAnswer)) {
             resultElement.textContent = "数字を入力してください。";
             speakText("数字を入力してください。");
         } else {
-            checkAnswer(currentProblem, userAnswer);
+            if (checkAnswer(currentProblem, userAnswer)) {
+                handleCorrectAnswer(resultElement, markContainer, correctSound, fanfareSound, () => {
+                    currentProblem = generateAdditionProblem();
+                    displayProblem(currentProblem);
+                });
+            } else {
+                handleIncorrectAnswer(resultElement, markContainer);
+            }
         }
     });
 
-    // Enterキーで「答える」ボタンを押す処理
     answerInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             submitButton.click();

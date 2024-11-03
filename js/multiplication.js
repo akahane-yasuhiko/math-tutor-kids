@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('submit');
     const resultElement = document.getElementById('result');
     const markContainer = document.getElementById('mark-container');
-    const fanfareSound = document.getElementById('fanfare-sound');
     const voiceButton = document.getElementById('voice-answer');
-
+    const correctSound = new Audio('./audio/correct-sound.mp3');
+    const fanfareSound = new Audio('./audio/fanfare.mp3');
     let currentProblem = generateMultiplicationProblem();
     displayProblem(currentProblem);
 
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         speakText(`${problem.num1} かける ${problem.num2} は？`, 1.2, 1.2);
     }
 
-        // 音声ボタンが押された時に音声認識を開始
+    // 音声ボタンが押された時に音声認識を開始
     voiceButton.addEventListener('click', async () => {
         try {
             await checkMicrophonePermission();
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             speakText("数字を入力してください。");
         } else {
             if (checkAnswer(currentProblem, userAnswer)) {
-                handleCorrectAnswer(resultElement, markContainer, fanfareSound, () => {
+                handleCorrectAnswer(resultElement, markContainer, correctSound, fanfareSound, () => {
                     currentProblem = generateMultiplicationProblem();
                     displayProblem(currentProblem);
                 });
