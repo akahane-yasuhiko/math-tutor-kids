@@ -40,29 +40,36 @@ export function clearMarks(markContainer) {
 }
 
 // 正解時のフィードバックを行う関数
-export function handleCorrectAnswer(resultElement, markContainer, fanfareSound, displayNextProblem) {
+export function handleCorrectAnswer(resultElement, markContainer, correctSound, fanfareSound, displayNextProblem) {
     const compliment = getRandomCompliment();
     resultElement.textContent = compliment;
 
-    // 褒め言葉をテンション高く読み上げ
-    const utterance = new SpeechSynthesisUtterance(compliment);
-    utterance.lang = 'ja-JP';
-    utterance.rate = 1.2;
-    utterance.pitch = 1.3;
-    utterance.onend = () => {
-        correctStreak++;
-        addCorrectMark(markContainer);
+    // 正解時の音声を再生し、その後褒め言葉を読み上げ
+    correctSound.play();
+    correctSound.onended = () => {
+        const utterance = new SpeechSynthesisUtterance(compliment);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 1.2;
+        utterance.pitch = 1.3;
+        utterance.onend = () => {
+            correctStreak++;
+            addCorrectMark(markContainer);
 
-        if (correctStreak === 10) {
-            fanfareSound.play();
-            resultElement.textContent = "10問連続正解！すごい！";
-            correctStreak = 0;
-            clearMarks(markContainer);
-        } else {
-            displayNextProblem();
-        }
+            // 10問連続正解時の処理
+            if (correctStreak === 10) {
+                fanfareSound.play();
+                fanfareSound.onended = () => {
+                    resultElement.textContent = "10問連続正解！すごい！";
+                    correctStreak = 0;
+                    clearMarks(markContainer);
+                    displayNextProblem();
+                };
+            } else {
+                displayNextProblem();
+            }
+        };
+        speechSynthesis.speak(utterance);
     };
-    speechSynthesis.speak(utterance);
 }
 
 // 不正解時のフィードバックを行う関数
