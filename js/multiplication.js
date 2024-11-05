@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayProblem(currentProblem);
 
     function displayProblem(problem) {
-        problemElement.textContent = `${problem.num1} × ${problem.num2} = ?`;
+        problemElement.textContent = `${problem.num1} × ${problem.num2} =`;
         answerInput.value = '';
         resultElement.textContent = '';
         speakText(`${problem.num1} かける ${problem.num2} は？`, 1.2, 1.2);
