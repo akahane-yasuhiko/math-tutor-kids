@@ -19,6 +19,21 @@ export function getRandomCompliment() {
     return compliments[randomIndex];
 }
 
+export function getRandomComplimentWithName(userName) {
+    const compliments = [
+        `${userName}さん、正解！素晴らしい！`,
+        `${userName}さん、よくできました！`,
+        `${userName}さん、その調子！`,
+        `${userName}さん、素晴らしい！`,
+        `すごい！その通り！${userName}さん`,
+        `${userName}さん、いい感じだね！`,
+        `${userName}さん、よく頑張ったね！`,
+        `${userName}さん、完璧です！`
+    ];
+    const randomIndex = Math.floor(Math.random() * compliments.length);
+    return compliments[randomIndex];
+}
+
 // 正解マークを追加し、3つごとに区切りを入れる関数
 export function addCorrectMark(markContainer) {
     const mark = document.createElement('span');
@@ -60,6 +75,37 @@ export function handleCorrectAnswer(resultElement, markContainer, correctSound, 
                 fanfareSound.play();
                 fanfareSound.onended = () => {
                     resultElement.textContent = "10問連続正解！すごい！";
+                    correctStreak = 0;
+                    clearMarks(markContainer);
+                    displayNextProblem();
+                };
+            } else {
+                displayNextProblem();
+            }
+        };
+        speechSynthesis.speak(utterance);
+    };
+}
+
+// 正解時のフィードバックを行う関数（userName引数追加）
+export function handleCorrectAnswerWithName(resultElement, markContainer, correctSound, fanfareSound, displayNextProblem, userName) {
+    const compliment = getRandomComplimentWithName(userName);
+    resultElement.textContent = compliment;
+
+    correctSound.play();
+    correctSound.onended = () => {
+        const utterance = new SpeechSynthesisUtterance(compliment);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 1.2;
+        utterance.pitch = 1.3;
+        utterance.onend = () => {
+            correctStreak++;
+            addCorrectMark(markContainer);
+
+            if (correctStreak === 10) {
+                fanfareSound.play();
+                fanfareSound.onended = () => {
+                    resultElement.textContent = `10問連続正解！すごい、${userName}さん！`;
                     correctStreak = 0;
                     clearMarks(markContainer);
                     displayNextProblem();

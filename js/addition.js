@@ -1,6 +1,6 @@
 import { checkMicrophonePermission, startVoiceRecognition, speakText } from './utils/speechUtils.js';
 import { generateAdditionProblem, checkAnswer } from './utils/problemUtils.js';
-import { handleCorrectAnswer, handleIncorrectAnswer } from './utils/feedbackUtils.js';
+import { handleCorrectAnswerWithName, handleIncorrectAnswer } from './utils/feedbackUtils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const problemElement = document.getElementById('problem');
@@ -45,10 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
             speakText("数字を入力してください。");
         } else {
             if (checkAnswer(currentProblem, userAnswer)) {
-                handleCorrectAnswer(resultElement, markContainer, correctSound, fanfareSound, () => {
+                handleCorrectAnswerWithName(resultElement, markContainer, correctSound, fanfareSound, () => {
                     currentProblem = generateAdditionProblem();
                     displayProblem(currentProblem);
-                });
+                }, userName);
             } else {
                 handleIncorrectAnswer(resultElement, markContainer, incorrectSound);
             }
@@ -60,4 +60,49 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.click();
         }
     });
+
+    // ソフトキーボード
+    let userName = "";
+    const nameInput = document.getElementById('name-input');
+    const keyboardButtons = document.querySelectorAll('.keyboard button');
+
+    keyboardButtons.forEach(button => {
+        const key = button.textContent;
+    
+        button.addEventListener('click', () => {
+            if (key === "␣") {
+                nameInput.value += " ";
+            } else if (key === "←") {
+                nameInput.value = nameInput.value.slice(0, -1);
+            } else if (key === "OK") {
+                userName = nameInput.value;
+                alert(`こんにちは、${userName}さん！`); // 動作確認用
+            } else if (key) {
+                nameInput.value += key;
+            }
+        });
+    });
+    
+    // スペース、削除、完了ボタンを追加
+    const spaceButton = document.createElement('button');
+    spaceButton.textContent = "␣";
+    spaceButton.addEventListener('click', () => {
+        nameInput.value += " ";
+    });
+    keyboardContainer.appendChild(spaceButton);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = "←";
+    deleteButton.addEventListener('click', () => {
+        nameInput.value = nameInput.value.slice(0, -1);
+    });
+    keyboardContainer.appendChild(deleteButton);
+
+    const doneButton = document.createElement('button');
+    doneButton.textContent = "完了";
+    doneButton.addEventListener('click', () => {
+        userName = nameInput.value;
+        alert(`こんにちは、${userName}さん！`); // 動作確認用
+    });
+    keyboardContainer.appendChild(doneButton);
 });

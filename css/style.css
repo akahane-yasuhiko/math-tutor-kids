@@ -49,3 +49,24 @@ body {
     padding: 10px;
     text-align: center;
 }
+
+/* ソフトキーボード */
+.keyboard {
+    display: flex;
+    flex-direction: column; /* 縦方向に配置 */
+    gap: 5px;
+    align-items: center;
+    margin: 10px auto;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 5px;
+}
+
+.keyboard button {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
